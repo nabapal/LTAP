@@ -30,4 +30,5 @@ devices = {
   "serial_number": serial_number,
   "os_version": os_version
 }
-print(tabulate(devices, headers=["hostname", "model", "SL No", "OS"]))
+print (devices)
+#print(tabulate(devices, headers=["hostname", "model", "SL No", "OS"]))
