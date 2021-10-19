@@ -1,6 +1,9 @@
 from netpalmapi import getconfig, task
 from pprint import pprint
 from tabulate import tabulate
+import yaml
+
+
 payload = {
   "library": "napalm",
   "connection_args": {
@@ -11,24 +14,26 @@ payload = {
   },
   "command": "get_facts"
 }
-config = getconfig(payload)
-task_id = config["data"]["task_id"]
-result = task(task_id)
-while result["data"]["task_status"] != "finished":
-            result = task(task_id)
-            #print (result)
-            if result["data"]["task_status"] == "finished":
-                break
-hostname= result['data']['task_result']['get_facts']['hostname']
-model = result['data']['task_result']['get_facts']['model']
-serial_number= result['data']['task_result']['get_facts']['serial_number']
-os_version = result['data']['task_result']['get_facts']['os_version']
-
-devices = {
-  "hostname": hostname,
-  "model": model,
-  "serial_number": serial_number,
-  "os_version": os_version
-}
-print (devices)
-#print(tabulate(devices, headers=["hostname", "model", "SL No", "OS"]))
+task_list = []
+with open("devices.yaml", "r") as stream:
+    try:
+        devices = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+for device in devices['devices']:
+  payload['connection_args']['host']= device['ip']
+  payload['connection_args']['device_type'] = device['device_type']
+  config = getconfig(payload)
+  task_id = config["data"]["task_id"]
+  task_list.append(task_id)
+results =[]
+for task_id in task_list:
+  result = task(task_id)
+  while result["data"]["task_status"] != "finished":
+    result = task(task_id)
+    if result["data"]["task_status"] == "finished":
+      break
+  results.append(result['data']['task_result']['get_facts'])
+print("__HOSTNAME__","__MODEL__","__SERIAL_NUMBER__","__OS_VERSION__")  
+for result in results:
+  print(result['hostname'],result['model'],result['serial_number'],result['os_version'].split()[4])

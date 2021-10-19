@@ -1,0 +1,10 @@
+---
+devices:
+  - ip: 10.64.2.85
+    device_type: cisco_ios
+  - ip: 10.64.2.86
+    device_type: cisco_ios
+  - ip: 10.64.2.68
+    device_type: cisco_ios
+  - ip: 10.64.2.69
+    device_type: cisco_ios    
